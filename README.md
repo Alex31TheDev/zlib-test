@@ -1,0 +1,1 @@
+Testing zlib compression
