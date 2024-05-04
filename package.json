@@ -1,0 +1,17 @@
+{
+  "name": "zlib-test",
+  "version": "0.0.1",
+  "description": "Morbius strip based compression",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./jest-config.js"
+  },
+  "keywords": [],
+  "author": "alex31thedev",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.6.1"
+  }
+}
