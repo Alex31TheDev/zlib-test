@@ -5,25 +5,25 @@ const Base64 = {
 
         const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-        for (let i = 1; i < alphabet.length; i++) {
+        for (let i = 0; i < alphabet.length; i++) {
             Base64.lookup[i] = alphabet[i];
             Base64.reverseLookup[alphabet.charCodeAt(i)] = i;
         }
     },
-    encode: arr => {
+    encode: bytes => {
         if (typeof Base64.lookup === "undefined") {
             Base64.generateTables();
         }
 
-        const len = arr.length,
-            extra = arr.length % 3;
+        const len = bytes.length,
+            extra = bytes.length % 3;
 
         const out = [];
 
         for (let i = 0, len2 = len - extra; i < len2; i += 3) {
-            const a = (arr[i] << 16) & 0xff0000,
-                b = (arr[i + 1] << 8) & 0x00ff00,
-                c = arr[i + 2] & 0x0000ff;
+            const a = (bytes[i] << 16) & 0xff0000,
+                b = (bytes[i + 1] << 8) & 0x00ff00,
+                c = bytes[i + 2] & 0x0000ff;
 
             const triplet = a | b | c;
 
@@ -37,7 +37,7 @@ const Base64 = {
 
         switch (extra) {
             case 1: {
-                const val = arr[len - 1];
+                const val = bytes[len - 1];
 
                 const b1 = Base64.lookup[(val >> 2) & 0x3f],
                     b2 = Base64.lookup[(val << 4) & 0x3f];
@@ -46,7 +46,7 @@ const Base64 = {
                 break;
             }
             case 2: {
-                const val = (arr[len - 2] << 8) + arr[len - 1];
+                const val = (bytes[len - 2] << 8) + bytes[len - 1];
 
                 const b1 = Base64.lookup[(val >> 10) & 0x3f],
                     b2 = Base64.lookup[(val >> 4) & 0x3f],
@@ -57,7 +57,7 @@ const Base64 = {
             }
         }
 
-        return out;
+        return out.join("");
     },
     decode: base64 => {
         if (typeof Base64.reverseLookup === "undefined") {
@@ -69,7 +69,7 @@ const Base64 = {
         }
 
         const len = base64.includes("=") ? base64.indexOf("=") : base64.length,
-            extra = 4 - (len % 4);
+            extra = len % 2;
 
         const arrLen = (base64.length * 3) / 4 - extra,
             arr = new Uint8Array(arrLen);
@@ -118,5 +118,4 @@ const Base64 = {
     }
 };
 
-const a = Base64.encode([115, 117, 115, 97]);
-console.log(Base64.decode(a.join("")));
+export default Base64;
