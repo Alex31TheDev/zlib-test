@@ -1,5 +1,3 @@
-import ChecksumError from "./ChecksumError.js";
-
 class Adler32 {
     constructor() {
         this.a = 1;
@@ -12,9 +10,11 @@ class Adler32 {
     }
 
     updateByte(byte) {
-        if(typeof byte !== "number") {
-            throw new ChecksumError("Byte has to be a number.");
+        if (typeof byte !== "number") {
+            throw new ChecksumError("Byte has to be a number");
         }
+
+        byte |= 0;
 
         this.a += byte;
         this.b += this.a;
@@ -26,24 +26,32 @@ class Adler32 {
     }
 
     calculate(bytes, start = 0, end) {
-        if(typeof start !== "number") {
-            throw new ChecksumError("Start index has to be a number.");
+        if (typeof start !== "number") {
+            throw new ChecksumError("Start index has to be a number");
         }
 
-        if(typeof end === "undefined") {
+        if (start % 1 !== 0 || start < 0) {
+            throw new ChecksumError("Invalid start position");
+        }
+
+        if (typeof end === "undefined") {
             end = bytes.length;
-        } else if(typeof end !== "number") {
-            throw new ChecksumError("End index has to be a number.");
+        } else if (typeof end !== "number") {
+            throw new ChecksumError("End index has to be a number");
+        }
+
+        if (end % 1 !== 0 || end < 0) {
+            throw new ChecksumError("Invalid end position");
         }
 
         let len = end,
             i = start;
 
-        while(len) {
+        while (len) {
             let chunkLen = Math.min(len, 4096);
             len -= chunkLen;
 
-            while(chunkLen--) {
+            while (chunkLen--) {
                 this.a += bytes[i++];
                 this.b += this.a;
             }
