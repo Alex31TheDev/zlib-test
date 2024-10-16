@@ -19,9 +19,9 @@ function generateTable() {
     return table;
 }
 
-const table = generateTable();
-
 class CRC32 {
+    static table = generateTable();
+
     constructor() {
         this.crc = 0 ^ -1;
     }
