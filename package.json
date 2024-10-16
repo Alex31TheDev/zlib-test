@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./jest-config.js"
+    "test": "node --experimental-vm-modules --no-warnings=ExperimentalWarning node_modules/jest/bin/jest.js --config ./jest.config.js"
   },
   "keywords": [],
   "author": "alex31thedev",
