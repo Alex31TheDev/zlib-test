@@ -1,3 +1,5 @@
+"use strict";
+
 class CustomError extends Error {
     constructor(message = "", ...args) {
         super(message, ...args);
@@ -232,4 +234,4 @@ const Base64 = {
     }
 };
 
-export default Base64;
+module.exports = Base64;

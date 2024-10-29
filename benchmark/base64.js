@@ -1,4 +1,4 @@
-import Base64 from "../src/base64/base64.js";
+import Base64 from "../src/base64/base64.cjs";
 import Util from "../src/Util.js";
 
 const dataLength = 2048 * 1000,

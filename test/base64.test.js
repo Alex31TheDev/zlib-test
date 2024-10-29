@@ -1,6 +1,6 @@
 import { describe, test, expect } from "@jest/globals";
 
-import Base64 from "../src/base64/base64.js";
+import Base64 from "../src/base64/base64.cjs";
 import Util from "../src/Util.js";
 
 const asciiBytes = Util.DataGenerator.sequentialData(256),
