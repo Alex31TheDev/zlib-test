@@ -1,1 +1,1 @@
-Testing zlib compression
+Testing zlib compression, encoding and others

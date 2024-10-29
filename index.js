@@ -84,7 +84,7 @@ function testBitset() {
 
 function testHuffman() {
     const n = 21,
-          seq = Util.fibonacci(n),
+          seq = Util.DataGenerator.fibonacci(n),
           tree = new HuffmanTree();
     
     tree.create(seq, 5);
