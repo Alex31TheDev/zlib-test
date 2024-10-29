@@ -1,11 +1,11 @@
 import assert from "node:assert";
 import Util from "./src/Util.js";
 
-import { Heap, HeapType } from "./src/Heap.js";
+import { Heap, HeapType } from "./src/heap/Heap.js";
 import Bitset from "./src/bitset/Bitset.js";
 
-import HuffmanTree from "./src/1/HuffmanTree.js";
-import HuffmanTree2 from "./src/2/HuffmanTree.js";
+import HuffmanTree from "./src/huffman/1/HuffmanTree.js";
+import HuffmanTree2 from "./src/huffman/2/HuffmanTree.js";
 
 
 function testBitset() {
