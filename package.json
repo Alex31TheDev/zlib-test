@@ -7,13 +7,16 @@
     "scripts": {
         "start": "node index.js",
         "test": "node --experimental-vm-modules --no-warnings=ExperimentalWarning node_modules/jest/bin/jest.js --config ./jest.config.js",
-        "prettier-format": "prettier --config .prettierrc --ignore-path .prettierignore --write **/*.js"
+        "prettier-format": "prettier --config .prettierrc --ignore-path .prettierignore --write **/*.js",
+        "build-min-base64": "terser src/base64/base64.cjs -o build/base64/base64.min.js -c -m toplevel --mangle-props \"regex=/^_|_$/\"",
+        "build-min-xzdecomp": "terser src/xz/XzDecompressor.cjs -o build/xz/XzDecompressor.min.js -c -m toplevel --mangle-props \"regex=/^_|_$/\""
     },
     "keywords": [],
     "author": "alex31thedev",
     "license": "MIT",
     "devDependencies": {
         "jest": "^29.6.1",
-        "prettier": "^3.3.3"
+        "prettier": "^3.3.3",
+        "terser": "^5.36.0"
     }
 }

@@ -12,9 +12,9 @@ class CustomError extends Error {
 class Base64Error extends CustomError {}
 
 const Base64 = {
-    generateTables: () => {
-        Base64.enc_mult = 4 / 3;
-        Base64.dec_mult = 3 / 4;
+    _generateTables: () => {
+        Base64._enc_mult = 4 / 3;
+        Base64._dec_mult = 3 / 4;
 
         Base64.lookup = [];
         Base64.reverseLookup = [];
@@ -26,17 +26,17 @@ const Base64 = {
             Base64.reverseLookup[alphabet.charCodeAt(i)] = i;
         }
 
-        Base64.enc_mask = 0x3f;
-        Base64.dec_mask = 0xff;
+        Base64._enc_mask = 0x3f;
+        Base64._dec_mask = 0xff;
 
-        Base64.a_mask = 0xff0000;
-        Base64.b_mask = 0x00ff00;
-        Base64.c_mask = 0x0000ff;
+        Base64._a_mask = 0xff0000;
+        Base64._b_mask = 0x00ff00;
+        Base64._c_mask = 0x0000ff;
     },
 
     encode: bytes => {
         if (typeof Base64.lookup === "undefined") {
-            Base64.generateTables();
+            Base64._generateTables();
         }
 
         const len = bytes.length,
@@ -44,7 +44,7 @@ const Base64 = {
             count = len - extra;
 
         const padding = 3 - extra,
-            outLen = Math.ceil(len * Base64.enc_mult) + padding,
+            outLen = Math.ceil(len * Base64._enc_mult) + padding,
             out = Array(outLen);
 
         let i = 0,
@@ -58,41 +58,41 @@ const Base64 = {
         };
 
         for (; i < count; i += 3) {
-            const a = (bytes[i] << 16) & Base64.a_mask,
-                b = (bytes[i + 1] << 8) & Base64.b_mask,
-                c = bytes[i + 2] & Base64.c_mask;
+            const a = (bytes[i] << 16) & Base64._a_mask,
+                b = (bytes[i + 1] << 8) & Base64._b_mask,
+                c = bytes[i + 2] & Base64._c_mask;
 
             const triplet = a | b | c;
 
-            const b1 = Base64.lookup[(triplet >> 18) & Base64.enc_mask],
-                b2 = Base64.lookup[(triplet >> 12) & Base64.enc_mask],
-                b3 = Base64.lookup[(triplet >> 6) & Base64.enc_mask],
-                b4 = Base64.lookup[triplet & Base64.enc_mask];
+            const b1 = Base64.lookup[(triplet >> 18) & Base64._enc_mask],
+                b2 = Base64.lookup[(triplet >> 12) & Base64._enc_mask],
+                b3 = Base64.lookup[(triplet >> 6) & Base64._enc_mask],
+                b4 = Base64.lookup[triplet & Base64._enc_mask];
 
             pushBytes(b1, b2, b3, b4);
         }
 
         switch (extra) {
             case 1: {
-                const c = bytes[count] & Base64.c_mask;
+                const c = bytes[count] & Base64._c_mask;
 
                 const triplet = c;
 
-                const b1 = Base64.lookup[(triplet >> 2) & Base64.enc_mask],
-                    b2 = Base64.lookup[(triplet << 4) & Base64.enc_mask];
+                const b1 = Base64.lookup[(triplet >> 2) & Base64._enc_mask],
+                    b2 = Base64.lookup[(triplet << 4) & Base64._enc_mask];
 
                 pushBytes(b1, b2, "=", "=");
                 break;
             }
             case 2: {
-                const b = (bytes[count] << 8) & Base64.b_mask,
-                    c = bytes[count + 1] & Base64.c_mask;
+                const b = (bytes[count] << 8) & Base64._b_mask,
+                    c = bytes[count + 1] & Base64._c_mask;
 
                 const triplet = b | c;
 
-                const b1 = Base64.lookup[(triplet >> 10) & Base64.enc_mask],
-                    b2 = Base64.lookup[(triplet >> 4) & Base64.enc_mask],
-                    b3 = Base64.lookup[(triplet << 2) & Base64.enc_mask];
+                const b1 = Base64.lookup[(triplet >> 10) & Base64._enc_mask],
+                    b2 = Base64.lookup[(triplet >> 4) & Base64._enc_mask],
+                    b3 = Base64.lookup[(triplet << 2) & Base64._enc_mask];
 
                 pushBytes(b1, b2, b3, "=");
                 break;
@@ -104,7 +104,7 @@ const Base64 = {
 
     decode: str => {
         if (typeof Base64.reverseLookup === "undefined") {
-            Base64.generateTables();
+            Base64._generateTables();
         }
 
         if (str.length % 4 !== 0) {
@@ -116,7 +116,7 @@ const Base64 = {
             extra = str.length - len,
             count = extra > 0 ? len - 4 : len;
 
-        const arrLen = str.length * Base64.dec_mult - extra,
+        const arrLen = str.length * Base64._dec_mult - extra,
             arr = new Uint8Array(arrLen);
 
         let i = 0,
@@ -164,9 +164,9 @@ const Base64 = {
 
             const triplet = b1 | b2 | b3 | b4;
 
-            const a = (triplet >> 16) & Base64.dec_mask,
-                b = (triplet >> 8) & Base64.dec_mask,
-                c = triplet & Base64.dec_mask;
+            const a = (triplet >> 16) & Base64._dec_mask,
+                b = (triplet >> 8) & Base64._dec_mask,
+                c = triplet & Base64._dec_mask;
 
             pushBytes(a, b, c);
         }
@@ -197,8 +197,8 @@ const Base64 = {
 
                 const triplet = b1 | b2 | b3;
 
-                const b = (triplet >> 8) & Base64.dec_mask,
-                    c = triplet & Base64.dec_mask;
+                const b = (triplet >> 8) & Base64._dec_mask,
+                    c = triplet & Base64._dec_mask;
 
                 pushBytes(b, c);
                 break;
@@ -220,7 +220,7 @@ const Base64 = {
 
                 const triplet = b1 | b2;
 
-                const c = triplet & Base64.dec_mask;
+                const c = triplet & Base64._dec_mask;
 
                 pushBytes(c);
                 break;

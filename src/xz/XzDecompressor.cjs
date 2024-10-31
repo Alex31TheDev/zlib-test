@@ -16,37 +16,37 @@ const XZ_OK = 0,
 
 class XzContext {
     constructor(moduleInstance) {
-        this.exports = moduleInstance.exports;
-        this.memory = this.exports.memory;
+        this._exports = moduleInstance.exports;
+        this._memory = this._exports.memory;
 
-        this.ptr = this.exports.create_context();
+        this._ptr = this._exports.create_context();
         this._refresh();
 
-        this.bufSize = this.mem32[0];
-        this.inStart = this.mem32[1] - this.ptr;
-        this.inEnd = this.inStart + this.bufSize;
-        this.outStart = this.mem32[4] - this.ptr;
+        this._bufSize = this._mem32[0];
+        this._inStart = this._mem32[1] - this._ptr;
+        this._inEnd = this._inStart + this._bufSize;
+        this._outStart = this._mem32[4] - this._ptr;
     }
 
     _refresh() {
-        if (this.memory.buffer === this.mem8?.buffer) {
+        if (this._memory.buffer === this._mem8?.buffer) {
             return;
         }
 
-        this.mem8 = new Uint8Array(this.memory.buffer, this.ptr);
-        this.mem32 = new Uint32Array(this.memory.buffer, this.ptr);
+        this._mem8 = new Uint8Array(this._memory.buffer, this._ptr);
+        this._mem32 = new Uint32Array(this._memory.buffer, this._ptr);
     }
 
     supplyInput(sourceDataUint8Array) {
-        const inBuffer = this.mem8.subarray(this.inStart, this.inEnd);
+        const inBuffer = this._mem8.subarray(this._inStart, this._inEnd);
         inBuffer.set(sourceDataUint8Array, 0);
 
-        this.exports.supply_input(this.ptr, sourceDataUint8Array.byteLength);
+        this._exports.supply_input(this._ptr, sourceDataUint8Array.byteLength);
         this._refresh();
     }
 
     getNextOutput() {
-        const result = this.exports.get_next_output(this.ptr);
+        const result = this._exports.get_next_output(this._ptr);
 
         this._refresh();
 
@@ -54,48 +54,48 @@ class XzContext {
             throw new XzError(`get_next_output failed with error code: ${result}`);
         }
 
-        const outChunk = this.mem8.subarray(this.outStart, this.outStart + /* outPos */ this.mem32[5]);
+        const outChunk = this._mem8.subarray(this._outStart, this._outStart + /* outPos */ this._mem32[5]);
         return { outChunk, finished: result === XZ_STREAM_END };
     }
 
     needsMoreInput() {
-        return /* inPos */ this.mem32[2] === /* inSize */ this.mem32[3];
+        return /* inPos */ this._mem32[2] === /* inSize */ this._mem32[3];
     }
 
     outputBufferIsFull() {
-        return /* outPos */ this.mem32[5] === this.bufSize;
+        return /* outPos */ this._mem32[5] === this._bufSize;
     }
 
     resetOutputBuffer() {
-        this.outPos = this.mem32[5] = 0;
+        this.outPos = this._mem32[5] = 0;
     }
 
     dispose() {
-        this.exports.destroy_context(this.ptr);
-        this.exports = null;
+        this._exports.destroy_context(this._ptr);
+        this._exports = null;
     }
 }
 
 class XzDecompressor {
-    static wasmInstance;
+    static _wasmInstance;
+
+    static _getContext() {
+        if (typeof this._wasmInstance === "undefined") {
+            throw new XzError("Cant' create context, wasm isn't loaded");
+        }
+
+        return new XzContext(this._wasmInstance);
+    }
 
     static loadWasm(wasm) {
-        if (typeof this.wasmInstance !== "undefined") {
+        if (typeof this._wasmInstance !== "undefined") {
             throw new XzError("Wasm is already loaded");
         }
 
         const wasmModule = new WebAssembly.Module(wasm),
             instance = new WebAssembly.Instance(wasmModule, {});
 
-        this.wasmInstance = instance;
-    }
-
-    static getContext() {
-        if (typeof this.wasmInstance === "undefined") {
-            throw new XzError("Cant' create context, wasm isn't loaded");
-        }
-
-        return new XzContext(this.wasmInstance);
+        this._wasmInstance = instance;
     }
 
     static decompress(data) {
@@ -114,12 +114,12 @@ class XzDecompressor {
 
         let output = new Uint8Array();
 
-        const context = this.getContext();
+        const context = this._getContext();
 
         try {
             while (!finished) {
                 if (context.needsMoreInput()) {
-                    const nextInputLength = Math.min(context.bufSize, unconsumedInput.byteLength);
+                    const nextInputLength = Math.min(context._bufSize, unconsumedInput.byteLength);
                     context.supplyInput(unconsumedInput.subarray(0, nextInputLength));
                     unconsumedInput = unconsumedInput.subarray(nextInputLength);
                 }
