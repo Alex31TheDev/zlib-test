@@ -34,17 +34,51 @@ const Base64 = {
         Base64._c_mask = 0x0000ff;
     },
 
+    getEncodedSize: (...args) => {
+        let len, extra;
+
+        switch (args.length) {
+            case 1:
+                const bytes = args[0];
+
+                len = bytes.length;
+                extra = Base64._getEncodeByteCount(bytes)[1];
+                break;
+            case 2:
+                [len, extra] = args;
+                break;
+        }
+
+        const padding = 3 - extra;
+        return Math.ceil(len * Base64._enc_mult) + padding;
+    },
+
+    getDecodedSize: (...args) => {
+        let len, extra;
+
+        switch (args.length) {
+            case 1:
+                const str = args[0];
+
+                len = str.length;
+                extra = Base64._getDecodeCharCount(str)[1];
+                break;
+            case 2:
+                [len, extra] = args;
+                break;
+        }
+
+        return len * Base64._dec_mult - extra;
+    },
+
     encode: bytes => {
         if (typeof Base64.lookup === "undefined") {
             Base64._generateTables();
         }
 
-        const len = bytes.length,
-            extra = bytes.length % 3,
-            count = len - extra;
+        const [count, extra] = Base64._getEncodeByteCount(bytes);
 
-        const padding = 3 - extra,
-            outLen = Math.ceil(len * Base64._enc_mult) + padding,
+        const outLen = Base64.getEncodedSize(bytes.length, extra),
             out = Array(outLen);
 
         let i = 0,
@@ -111,12 +145,9 @@ const Base64 = {
             throw new Base64Error("Invalid string. Length must be a multiple of 4");
         }
 
-        const paddingPos = str.indexOf("="),
-            len = paddingPos > 0 ? paddingPos : str.length,
-            extra = str.length - len,
-            count = extra > 0 ? len - 4 : len;
+        const [count, extra] = Base64._getDecodeCharCount(str);
 
-        const arrLen = str.length * Base64._dec_mult - extra,
+        const arrLen = Base64.getDecodedSize(str.length, extra),
             arr = new Uint8Array(arrLen);
 
         let i = 0,
@@ -231,6 +262,22 @@ const Base64 = {
         }
 
         return arr;
+    },
+
+    _getEncodeByteCount: bytes => {
+        const extra = bytes.length % 3,
+            count = bytes.length - extra;
+
+        return [count, extra];
+    },
+
+    _getDecodeCharCount: str => {
+        const paddingPos = str.indexOf("="),
+            len = paddingPos > 0 ? paddingPos : str.length,
+            extra = str.length - len,
+            count = extra > 0 ? len - 4 : len;
+
+        return [count, extra];
     }
 };
 
