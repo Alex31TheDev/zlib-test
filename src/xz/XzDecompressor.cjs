@@ -81,7 +81,7 @@ class XzDecompressor {
 
     static _getContext() {
         if (typeof this._wasmInstance === "undefined") {
-            throw new XzError("Cant' create context, wasm isn't loaded");
+            throw new XzError("Cant' create context, WASM isn't loaded");
         }
 
         return new XzContext(this._wasmInstance);
@@ -89,7 +89,7 @@ class XzDecompressor {
 
     static loadWasm(wasm) {
         if (typeof this._wasmInstance !== "undefined") {
-            throw new XzError("Wasm is already loaded");
+            throw new XzError("WASM is already loaded");
         }
 
         const wasmModule = new WebAssembly.Module(wasm),
