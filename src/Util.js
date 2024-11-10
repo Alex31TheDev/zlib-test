@@ -38,11 +38,7 @@ const Util = {
         },
 
         sequentialData: len => {
-            return new Uint8Array(
-                Array(len)
-                    .fill()
-                    .map((_, i) => i % 256)
-            );
+            return new Uint8Array(Array.from({ length: len }, (_, i) => i % 256));
         },
 
         randomData: len => {
