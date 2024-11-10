@@ -81,7 +81,7 @@ class XzDecompressor {
 
     static _getContext() {
         if (typeof this._wasmInstance === "undefined") {
-            throw new XzError("Cant' create context, WASM isn't loaded");
+            throw new XzError("Can't create context, WASM isn't loaded");
         }
 
         return new XzContext(this._wasmInstance);

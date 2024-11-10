@@ -53,15 +53,19 @@ const memoryBase = 1024,
     tableBase = 0;
 
 class DecoderContext {
+    #exports;
+    #view;
+    #u32view;
+
     constructor(wasmModule) {
         const memory = new WebAssembly.Memory({
                 initial: MEM_SIZE,
                 maximum: MEM_SIZE
             }),
-            view = (this._view = new Uint8Array(memory.buffer));
+            view = (this.#view = new Uint8Array(memory.buffer));
 
-        this._u32view = new Uint32Array(memory.buffer);
-        this._u32view[DYNAMICTOP_PTR >> 2] = STACK_MAX;
+        this.#u32view = new Uint32Array(memory.buffer);
+        this.#u32view[DYNAMICTOP_PTR >> 2] = STACK_MAX;
 
         const env = {
             ABORT,
@@ -104,15 +108,15 @@ class DecoderContext {
             }),
             tableBase,
 
-            _oninit: this._oninit.bind(this),
-            _onframe: this._onframe.bind(this)
+            _oninit: this.#oninit.bind(this),
+            _onframe: this.#onframe.bind(this)
         };
 
         const instance = new WebAssembly.Instance(wasmModule, { env });
-        this._exports = instance.exports;
+        this.#exports = instance.exports;
     }
 
-    _oninit(ptr, width, height) {
+    #oninit(ptr, width, height) {
         const len = width * height;
 
         this._task = {
@@ -124,16 +128,16 @@ class DecoderContext {
         };
     }
 
-    _onframe(ms) {
+    #onframe(ms) {
         const task = this._task,
             buf = new Uint32Array(task.len);
 
-        buf.set(this._u32view.subarray(task.ptr, task.ptr + task.len));
+        buf.set(this.#u32view.subarray(task.ptr, task.ptr + task.len));
         task.frames.push({ buf, ms });
     }
 
-    _readString(at) {
-        const v = this._view.slice(at);
+    #readString(at) {
+        const v = this.#view.slice(at);
 
         for (let i = 0; i < v.length; i++) {
             if (v[i] === 0) {
@@ -146,19 +150,19 @@ class DecoderContext {
 
     allocMemory(size) {
         this._bufSize = size;
-        this._at = this._exports._malloc(size);
+        this._at = this.#exports._malloc(size);
     }
 
     supplyInput(buffer) {
-        this._view.set(buffer, this._at);
-        this._exports._read_buffer(this._at, this._bufSize);
+        this.#view.set(buffer, this._at);
+        this.#exports._read_buffer(this._at, this._bufSize);
     }
 
     getOutput() {
-        const ret = this._exports._play();
+        const ret = this.#exports._play();
 
         if (ret) {
-            throw new FastgifError("unhandled decode error: " + this._readString(ret));
+            throw new FastgifError("unhandled decode error: " + this.#readString(ret));
         }
 
         const task = this._task;
@@ -168,28 +172,28 @@ class DecoderContext {
     }
 
     dispose() {
-        //this._exports._free(this._at);
+        //this.#exports._free(this._at);
     }
 }
 
 class FastgifDecoder {
-    static _wasmModule;
+    static #wasmModule;
 
-    static _getContext() {
-        if (typeof this._wasmModule === "undefined") {
-            throw new FastgifError("Cant' create context, WASM isn't loaded");
+    static #getContext() {
+        if (typeof this.#wasmModule === "undefined") {
+            throw new FastgifError("Can't create context, WASM isn't loaded");
         }
 
-        return new DecoderContext(this._wasmModule);
+        return new DecoderContext(this.#wasmModule);
     }
 
     static loadWasm(wasm) {
-        if (typeof this._wasmModule !== "undefined") {
+        if (typeof this.#wasmModule !== "undefined") {
             throw new FastgifError("WASM is already loaded");
         }
 
         const wasmModule = new WebAssembly.Module(wasm);
-        this._wasmModule = wasmModule;
+        this.#wasmModule = wasmModule;
     }
 
     static decode(data) {
@@ -207,7 +211,7 @@ class FastgifDecoder {
 
         let output = [];
 
-        const context = this._getContext();
+        const context = this.#getContext();
         context.allocMemory(buffer.length);
 
         try {

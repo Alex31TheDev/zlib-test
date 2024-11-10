@@ -9,7 +9,8 @@
         "test": "node --experimental-vm-modules --no-warnings=ExperimentalWarning node_modules/jest/bin/jest.js --config ./jest.config.js",
         "prettier-format": "prettier --config .prettierrc --ignore-path .prettierignore --write **/*.js",
         "build-min-base64": "terser src/base64/base64.cjs -o build/base64/base64.min.js -c -m toplevel --mangle-props \"regex=/^_|_$/\"",
-        "build-min-xzdecomp": "terser src/xz/XzDecompressor.cjs -o build/xz/XzDecompressor.min.js -c -m toplevel --mangle-props \"regex=/^_|_$/\""
+        "build-min-xzdecomp": "terser src/xz/XzDecompressor.cjs -o build/xz/XzDecompressor.min.js -c -m toplevel --mangle-props \"regex=/^_|_$/\"",
+        "build-min-fastgif": "terser src/fastgif/fastgif.cjs -o build/fastgif/fastgif.min.js -c -m toplevel --mangle-props \"regex=/^#/\""
     },
     "keywords": [],
     "author": "alex31thedev",
