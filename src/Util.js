@@ -1,3 +1,4 @@
+import fs from "fs";
 import crypto from "crypto";
 
 const Util = {
@@ -61,6 +62,35 @@ const Util = {
         }
 
         return out;
+    },
+
+    HashUtil: {
+        hashData: (data, hashType = "sha1") => {
+            const hash = crypto.createHash(hashType);
+            hash.setEncoding("hex");
+
+            hash.write(data);
+            hash.end();
+
+            return hash.read();
+        },
+
+        hashFile: (path, hashType = "sha1") => {
+            return new Promise((resolve, reject) => {
+                const hash = crypto.createHash(hashType),
+                    stream = fs.createReadStream(path);
+
+                hash.setEncoding("hex");
+
+                stream.once("error", err => reject(err));
+                stream.pipe(hash);
+
+                stream.once("end", _ => {
+                    hash.end();
+                    resolve(hash.read());
+                });
+            });
+        }
     }
 };
 

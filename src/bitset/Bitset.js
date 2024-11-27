@@ -290,7 +290,7 @@ class Bitset {
 
     shiftRight(n = 1) {
         if (typeof pos !== "number") {
-            throw new BBitsetOperationError("Shift amount has to be a number.");
+            throw new BitsetOperationError("Shift amount has to be a number.");
         } else if (n > 32) {
             throw new BitsetOperationError("Can't shift more than 1 set unit.");
         } else if (n < 0) {
