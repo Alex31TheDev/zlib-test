@@ -72,7 +72,7 @@ class XzContext {
 
     dispose() {
         this._exports.destroy_context(this._ptr);
-        this._exports = null;
+        delete this._exports;
     }
 }
 

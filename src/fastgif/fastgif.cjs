@@ -173,6 +173,7 @@ class DecoderContext {
 
     dispose() {
         //this.#exports._free(this._at);
+        delete this.#exports;
     }
 }
 

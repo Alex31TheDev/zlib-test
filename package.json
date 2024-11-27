@@ -10,7 +10,8 @@
         "prettier-format": "prettier --config .prettierrc --ignore-path .prettierignore --write **/*.js",
         "build-min-base64": "terser src/base64/base64.cjs -o build/base64/base64.min.js -c -m toplevel --mangle-props \"regex=/^_|_$/\"",
         "build-min-xzdecomp": "terser src/xz/XzDecompressor.cjs -o build/xz/XzDecompressor.min.js -c -m toplevel --mangle-props \"regex=/^_|_$/\"",
-        "build-min-fastgif": "terser src/fastgif/fastgif.cjs -o build/fastgif/fastgif.min.js -c -m toplevel --mangle-props \"regex=/^#/\""
+        "build-min-fastgif": "terser src/fastgif/fastgif.cjs -o build/fastgif/fastgif.min.js -c -m toplevel --mangle-props \"regex=/^#/\"",
+        "build-min-zstddecomp": "terser src/zstd/ZstdDecompressor.cjs -o build/zstd/ZstdDecompressor.min.js -c -m toplevel --mangle-props \"regex=/^_|_$/\""
     },
     "keywords": [],
     "author": "alex31thedev",
