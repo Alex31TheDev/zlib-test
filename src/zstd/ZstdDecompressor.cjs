@@ -43,12 +43,11 @@ class ZstdContext {
             this._decompressedSize = size;
         } else {
             const foundSize = this._exports.ZSTD_findDecompressedSize(this._compressedPointer, this._compressedSize);
-
-            if (foundSize === -1) {
-                throw new ZstdError("Invalid input data");
-            }
-
             this._decompressedSize = Number(foundSize);
+        }
+
+        if (this._decompressedSize === -1) {
+            throw new ZstdError("Invalid input data");
         }
 
         this._decompressedPointer = this._exports.malloc(this._decompressedSize);
