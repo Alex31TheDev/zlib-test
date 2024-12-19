@@ -46,8 +46,9 @@ class ZstdContext {
             this._decompressedSize = Number(foundSize);
         }
 
-        if (this._decompressedSize === -1) {
-            throw new ZstdError("Invalid input data");
+        if (this._decompressedSize < 0) {
+            const code = this._decompressedSize;
+            throw new ZstdError(`Invalid input data or unknown format (error code: ${code})`);
         }
 
         this._decompressedPointer = this._exports.malloc(this._decompressedSize);
@@ -60,6 +61,11 @@ class ZstdContext {
             this._compressedPointer,
             this._compressedSize
         );
+
+        if (decompressedDataSize < 0) {
+            const code = decompressedDataSize;
+            throw new ZstdError(`Invalid input data or unknown format (error code: ${code})`);
+        }
 
         const decompressedData = this._heap.slice(
             this._decompressedPointer,
@@ -109,7 +115,7 @@ class ZstdDecompressor {
             data = new Uint8Array(data);
         }
 
-        let output = new Uint8Array();
+        let output;
 
         const context = this._getContext();
         context.allocCompressed(data.byteLength);
@@ -121,8 +127,9 @@ class ZstdDecompressor {
             output = context.getOutput();
         } finally {
             context.dispose();
-            return output;
         }
+
+        return output;
     }
 }
 

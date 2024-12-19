@@ -143,8 +143,9 @@ class XzDecompressor {
             }
         } finally {
             context.dispose();
-            return output;
         }
+
+        return output;
     }
 }
 
