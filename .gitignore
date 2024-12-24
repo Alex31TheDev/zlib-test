@@ -131,4 +131,4 @@ vscode/
 .pnp.*
 
 #build
-build/
+/build/
