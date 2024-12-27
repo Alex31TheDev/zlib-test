@@ -1,31 +1,33 @@
 import { describe, test, expect } from "@jest/globals";
 
 import Base64 from "../src/base64/base64.cjs";
-import Util from "../src/Util.js";
 
-const asciiBytes = Util.DataGenerator.sequentialData(256),
+import DataGenerator from "../src/util/DataGenerator.js";
+import Encoding from "../src/util/Encoding.js";
+
+const asciiBytes = DataGenerator.sequentialData(256),
     ascii = String.fromCharCode(...asciiBytes);
 
 const longLen = 204800;
 
-const zeroData = Util.DataGenerator.zeroData(longLen),
-    longData = Util.DataGenerator.sequentialData(longLen),
-    randomData = Util.DataGenerator.randomData(longLen);
+const zeroData = DataGenerator.zeroData(longLen),
+    longData = DataGenerator.sequentialData(longLen),
+    randomData = DataGenerator.randomData(longLen);
 
 function encodeCase(data) {
     if (typeof data === "string") {
-        data = Util.encodeUtf8String(data);
+        data = Encoding.encodeUtf8String(data);
     }
 
     const enc1 = Base64.encode(data),
-        enc2 = Util.encodeBase64(data);
+        enc2 = Encoding.encodeBase64(data);
 
     expect(enc1).toStrictEqual(enc2);
 }
 
 function decodeCase(str) {
     const dec1 = Base64.decode(str),
-        dec2 = Util.decodeBase64(str);
+        dec2 = Encoding.decodeBase64(str);
 
     expect(dec1).toEqual(dec2);
 }
@@ -148,29 +150,29 @@ describe("Decode", () => {
 
     describe("Short data", () => {
         test("0-255", () => {
-            const enc = Util.encodeBase64(asciiBytes);
+            const enc = Encoding.encodeBase64(asciiBytes);
             decodeCase(enc);
         });
 
         test("ASCII", () => {
-            const enc = Util.encodeBase64(ascii);
+            const enc = Encoding.encodeBase64(ascii);
             decodeCase(enc);
         });
     });
 
     describe("Long data", () => {
         test("Zero data", () => {
-            const enc = Util.encodeBase64(zeroData);
+            const enc = Encoding.encodeBase64(zeroData);
             decodeCase(enc);
         });
 
         test("Sequential data", () => {
-            const enc = Util.encodeBase64(longData);
+            const enc = Encoding.encodeBase64(longData);
             decodeCase(enc);
         });
 
         test("Random data", () => {
-            const enc = Util.encodeBase64(randomData);
+            const enc = Encoding.encodeBase64(randomData);
             decodeCase(enc);
         });
     });

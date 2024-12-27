@@ -1,12 +1,13 @@
 import { describe, test, expect } from "@jest/globals";
 
-import Util from "../src/Util.js";
 import CRC32 from "../src/checksums/CRC32.js";
 import Adler32 from "../src/checksums/Adler32.js";
 
+import Encoding from "../src/util/Encoding.js";
+
 function CRCIndependentCase(str, expected) {
     const crc = new CRC32(),
-        encoded = Util.encodeUtf8String(str);
+        encoded = Encoding.encodeUtf8String(str);
 
     crc.calculate(encoded);
     expect(crc.value).toStrictEqual(expected);
@@ -14,7 +15,7 @@ function CRCIndependentCase(str, expected) {
 
 function adlerIndependentCase(input, expected) {
     const adler = new Adler32(),
-        encoded = Util.encodeUtf8String(input);
+        encoded = Encoding.encodeUtf8String(input);
 
     adler.calculate(encoded);
     expect(adler.value).toStrictEqual(expected);
@@ -38,10 +39,10 @@ describe("CRC32", () => {
     test("Checksum update", () => {
         const crc = new CRC32();
 
-        crc.calculate(Util.encodeUtf8String("amogus"));
+        crc.calculate(Encoding.encodeUtf8String("amogus"));
         expect(crc.value).toStrictEqual(0xa6515965);
 
-        crc.calculate(Util.encodeUtf8String("morbius"));
+        crc.calculate(Encoding.encodeUtf8String("morbius"));
         expect(crc.value).toStrictEqual(0xdfac04b6);
 
         crc.updateByte(0x41);
@@ -67,10 +68,10 @@ describe("Adler32", () => {
     test("Checksum update", () => {
         const adler = new Adler32();
 
-        adler.calculate(Util.encodeUtf8String("amogus"));
+        adler.calculate(Encoding.encodeUtf8String("amogus"));
         expect(adler.value).toStrictEqual(0x08bb028d);
 
-        adler.calculate(Util.encodeUtf8String("morbius"));
+        adler.calculate(Encoding.encodeUtf8String("morbius"));
         expect(adler.value).toStrictEqual(0x2685058e);
 
         adler.updateByte(0x41);
