@@ -111,7 +111,9 @@ class Bitset {
         this.bitCount = bitCount;
 
         for (let i = 0; i < str.length; i++) {
-            const bit = parseInt(str[str.length - i - 1]),
+            const char = str[str.length - i - 1];
+
+            const bit = Number.parseInt(char, 10),
                 [arrIndex, bitIndex] = getIndexes(i);
 
             if (bit === 0) {
@@ -119,7 +121,7 @@ class Bitset {
             } else if (bit === 1) {
                 this.bits[arrIndex] |= 1 << bitIndex;
             } else {
-                throw new BitsetParseError("Invalid bit: " + str[str.length - i - 1]);
+                throw new BitsetParseError("Invalid bit: " + char);
             }
         }
 
