@@ -33,14 +33,6 @@ const Util = {
     }
 };
 
-class ImageData {
-    constructor(data, width, height) {
-        this.data = data;
-        this.width = width;
-        this.height = height;
-    }
-}
-
 const MEM_SIZE = 256,
     TABLE_SIZE = 2;
 
@@ -173,7 +165,7 @@ class DecoderContext {
 
     dispose() {
         //this.#exports._free(this._at);
-        delete this.#exports;
+        this.#exports = undefined;
     }
 }
 
