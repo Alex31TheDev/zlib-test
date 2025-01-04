@@ -152,19 +152,13 @@ const Base64 = {
                 b4 = Base64.reverseLookup[str.charCodeAt(i + 3)];
 
             if (b1 === undefined) {
-                throw new Base64Error("Invalid character: " + str[i]);
-            }
-
-            if (b2 === undefined) {
-                throw new Base64Error("Invalid character: " + str[i + 1]);
-            }
-
-            if (b3 === undefined) {
-                throw new Base64Error("Invalid character: " + str[i + 2]);
-            }
-
-            if (b4 === undefined) {
-                throw new Base64Error("Invalid character: " + str[i + 3]);
+                Base64._invalidCharacterError(str, i);
+            } else if (b2 === undefined) {
+                Base64._invalidCharacterError(str, i + 1);
+            } else if (b3 === undefined) {
+                Base64._invalidCharacterError(str, i + 2);
+            } else if (b4 === undefined) {
+                Base64._invalidCharacterError(str, i + 3);
             }
 
             b1 <<= 18;
@@ -189,15 +183,11 @@ const Base64 = {
                     b3 = Base64.reverseLookup[str.charCodeAt(i + 2)];
 
                 if (b1 === undefined) {
-                    throw new Base64Error("Invalid character: " + str[i]);
-                }
-
-                if (b2 === undefined) {
-                    throw new Base64Error("Invalid character: " + str[i + 1]);
-                }
-
-                if (b3 === undefined) {
-                    throw new Base64Error("Invalid character: " + str[i + 2]);
+                    Base64._invalidCharacterError(str, i);
+                } else if (b2 === undefined) {
+                    Base64._invalidCharacterError(str, i + 1);
+                } else if (b3 === undefined) {
+                    Base64._invalidCharacterError(str, i + 2);
                 }
 
                 b1 <<= 10;
@@ -217,11 +207,9 @@ const Base64 = {
                     b2 = Base64.reverseLookup[str.charCodeAt(i + 1)];
 
                 if (b1 === undefined) {
-                    throw new Base64Error("Invalid character: " + str[i]);
-                }
-
-                if (b2 === undefined) {
-                    throw new Base64Error("Invalid character: " + str[i + 1]);
+                    Base64._invalidCharacterError(str, i);
+                } else if (b2 === undefined) {
+                    Base64._invalidCharacterError(str, i + 1);
                 }
 
                 b1 <<= 2;
@@ -236,7 +224,7 @@ const Base64 = {
             }
             default:
                 const paddingChars = str.slice(len + 1);
-                throw new Base64Error("Invalid padding chars: " + paddingChars);
+                throw new Base64Error("Invalid padding characters: " + paddingChars);
         }
 
         return arr;
@@ -278,6 +266,10 @@ const Base64 = {
             count = extra > 0 ? len - 4 : len;
 
         return [count, extra];
+    },
+
+    _invalidCharacterError: (str, pos) => {
+        throw new Base64Error(`Invalid character at position ${pos}: ${str[pos]}`);
     }
 };
 
