@@ -25,10 +25,6 @@ class ZstdContext {
         this._initHeap();
     }
 
-    _initHeap() {
-        this._heap = new Uint8Array(this._exports.memory.buffer);
-    }
-
     allocCompressed(size) {
         this._compressedSize = size;
         this._compressedPointer = this._exports.malloc(size);
@@ -83,6 +79,10 @@ class ZstdContext {
         }
 
         delete this._exports;
+    }
+
+    _initHeap() {
+        this._heap = new Uint8Array(this._exports.memory.buffer);
     }
 }
 

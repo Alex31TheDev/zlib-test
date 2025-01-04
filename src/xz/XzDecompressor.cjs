@@ -28,21 +28,16 @@ class XzContext {
         this._outStart = this._mem32[4] - this._ptr;
     }
 
-    _refresh() {
-        if (this._memory.buffer === this._mem8?.buffer) {
-            return;
-        }
-
-        this._mem8 = new Uint8Array(this._memory.buffer, this._ptr);
-        this._mem32 = new Uint32Array(this._memory.buffer, this._ptr);
-    }
-
     supplyInput(sourceDataUint8Array) {
         const inBuffer = this._mem8.subarray(this._inStart, this._inEnd);
         inBuffer.set(sourceDataUint8Array, 0);
 
         this._exports.supply_input(this._ptr, sourceDataUint8Array.byteLength);
         this._refresh();
+    }
+
+    needsMoreInput() {
+        return /* inPos */ this._mem32[2] === /* inSize */ this._mem32[3];
     }
 
     getNextOutput() {
@@ -58,10 +53,6 @@ class XzContext {
         return { outChunk, finished: result === XZ_STREAM_END };
     }
 
-    needsMoreInput() {
-        return /* inPos */ this._mem32[2] === /* inSize */ this._mem32[3];
-    }
-
     outputBufferIsFull() {
         return /* outPos */ this._mem32[5] === this._bufSize;
     }
@@ -73,6 +64,15 @@ class XzContext {
     dispose() {
         this._exports.destroy_context(this._ptr);
         delete this._exports;
+    }
+
+    _refresh() {
+        if (this._memory.buffer === this._mem8?.buffer) {
+            return;
+        }
+
+        this._mem8 = new Uint8Array(this._memory.buffer, this._ptr);
+        this._mem32 = new Uint32Array(this._memory.buffer, this._ptr);
     }
 }
 

@@ -12,28 +12,6 @@ class CustomError extends Error {
 class Base64Error extends CustomError {}
 
 const Base64 = {
-    _generateTables: () => {
-        Base64._enc_mult = 4 / 3;
-        Base64._dec_mult = 3 / 4;
-
-        Base64.lookup = [];
-        Base64.reverseLookup = [];
-
-        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-        for (let i = 0; i < alphabet.length; i++) {
-            Base64.lookup[i] = alphabet[i];
-            Base64.reverseLookup[alphabet.charCodeAt(i)] = i;
-        }
-
-        Base64._enc_mask = 0x3f;
-        Base64._dec_mask = 0xff;
-
-        Base64._a_mask = 0xff0000;
-        Base64._b_mask = 0x00ff00;
-        Base64._c_mask = 0x0000ff;
-    },
-
     getEncodedSize: (...args) => {
         let len, extra;
 
@@ -262,6 +240,28 @@ const Base64 = {
         }
 
         return arr;
+    },
+
+    _generateTables: () => {
+        Base64._enc_mult = 4 / 3;
+        Base64._dec_mult = 3 / 4;
+
+        Base64.lookup = [];
+        Base64.reverseLookup = [];
+
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+        for (let i = 0; i < alphabet.length; i++) {
+            Base64.lookup[i] = alphabet[i];
+            Base64.reverseLookup[alphabet.charCodeAt(i)] = i;
+        }
+
+        Base64._enc_mask = 0x3f;
+        Base64._dec_mask = 0xff;
+
+        Base64._a_mask = 0xff0000;
+        Base64._b_mask = 0x00ff00;
+        Base64._c_mask = 0x0000ff;
     },
 
     _getEncodeByteCount: bytes => {

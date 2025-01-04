@@ -108,6 +108,34 @@ class DecoderContext {
         this.#exports = instance.exports;
     }
 
+    allocMemory(size) {
+        this._bufSize = size;
+        this._at = this.#exports._malloc(size);
+    }
+
+    supplyInput(buffer) {
+        this.#view.set(buffer, this._at);
+        this.#exports._read_buffer(this._at, this._bufSize);
+    }
+
+    getOutput() {
+        const ret = this.#exports._play();
+
+        if (ret) {
+            throw new FastgifError("unhandled decode error: " + this.#readString(ret));
+        }
+
+        const task = this._task;
+        delete this._task;
+
+        return task;
+    }
+
+    dispose() {
+        //this.#exports._free(this._at);
+        this.#exports = undefined;
+    }
+
     #oninit(ptr, width, height) {
         const len = width * height;
 
@@ -138,34 +166,6 @@ class DecoderContext {
         }
 
         return Util.bytesToString(v.slice(0, i));
-    }
-
-    allocMemory(size) {
-        this._bufSize = size;
-        this._at = this.#exports._malloc(size);
-    }
-
-    supplyInput(buffer) {
-        this.#view.set(buffer, this._at);
-        this.#exports._read_buffer(this._at, this._bufSize);
-    }
-
-    getOutput() {
-        const ret = this.#exports._play();
-
-        if (ret) {
-            throw new FastgifError("unhandled decode error: " + this.#readString(ret));
-        }
-
-        const task = this._task;
-        delete this._task;
-
-        return task;
-    }
-
-    dispose() {
-        //this.#exports._free(this._at);
-        this.#exports = undefined;
     }
 }
 
