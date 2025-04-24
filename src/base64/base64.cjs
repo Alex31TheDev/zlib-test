@@ -49,6 +49,9 @@ const Base64 = {
         return len * Base64._dec_mult - extra;
     },
 
+    alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
+    paddingChar: "=",
+
     encode: bytes => {
         if (typeof Base64.lookup === "undefined") {
             Base64._generateTables();
@@ -93,7 +96,7 @@ const Base64 = {
                 const b1 = Base64.lookup[(triplet >> 2) & Base64._enc_mask],
                     b2 = Base64.lookup[(triplet << 4) & Base64._enc_mask];
 
-                pushBytes(b1, b2, "=", "=");
+                pushBytes(b1, b2, Base64.paddingChar, Base64.paddingChar);
                 break;
             }
             case 2: {
@@ -106,7 +109,7 @@ const Base64 = {
                     b2 = Base64.lookup[(triplet >> 4) & Base64._enc_mask],
                     b3 = Base64.lookup[(triplet << 2) & Base64._enc_mask];
 
-                pushBytes(b1, b2, b3, "=");
+                pushBytes(b1, b2, b3, Base64.paddingChar);
                 break;
             }
         }
@@ -132,17 +135,9 @@ const Base64 = {
             byte_i = 0;
 
         const pushBytes = (a, b, c) => {
-            if (a !== undefined) {
-                arr[byte_i++] = a;
-            }
-
-            if (b !== undefined) {
-                arr[byte_i++] = b;
-            }
-
-            if (c !== undefined) {
-                arr[byte_i++] = c;
-            }
+            if (a !== undefined) arr[byte_i++] = a;
+            if (b !== undefined) arr[byte_i++] = b;
+            if (c !== undefined) arr[byte_i++] = c;
         };
 
         for (; i < count; i += 4) {
@@ -151,15 +146,10 @@ const Base64 = {
                 b3 = Base64.reverseLookup[str.charCodeAt(i + 2)],
                 b4 = Base64.reverseLookup[str.charCodeAt(i + 3)];
 
-            if (b1 === undefined) {
-                Base64._invalidCharacterError(str, i);
-            } else if (b2 === undefined) {
-                Base64._invalidCharacterError(str, i + 1);
-            } else if (b3 === undefined) {
-                Base64._invalidCharacterError(str, i + 2);
-            } else if (b4 === undefined) {
-                Base64._invalidCharacterError(str, i + 3);
-            }
+            if (b1 === undefined) Base64._invalidCharacterError(str, i);
+            else if (b2 === undefined) Base64._invalidCharacterError(str, i + 1);
+            else if (b3 === undefined) Base64._invalidCharacterError(str, i + 2);
+            else if (b4 === undefined) Base64._invalidCharacterError(str, i + 3);
 
             b1 <<= 18;
             b2 <<= 12;
@@ -182,13 +172,9 @@ const Base64 = {
                     b2 = Base64.reverseLookup[str.charCodeAt(i + 1)],
                     b3 = Base64.reverseLookup[str.charCodeAt(i + 2)];
 
-                if (b1 === undefined) {
-                    Base64._invalidCharacterError(str, i);
-                } else if (b2 === undefined) {
-                    Base64._invalidCharacterError(str, i + 1);
-                } else if (b3 === undefined) {
-                    Base64._invalidCharacterError(str, i + 2);
-                }
+                if (b1 === undefined) Base64._invalidCharacterError(str, i);
+                else if (b2 === undefined) Base64._invalidCharacterError(str, i + 1);
+                else if (b3 === undefined) Base64._invalidCharacterError(str, i + 2);
 
                 b1 <<= 10;
                 b2 <<= 4;
@@ -206,11 +192,8 @@ const Base64 = {
                 let b1 = Base64.reverseLookup[str.charCodeAt(i)],
                     b2 = Base64.reverseLookup[str.charCodeAt(i + 1)];
 
-                if (b1 === undefined) {
-                    Base64._invalidCharacterError(str, i);
-                } else if (b2 === undefined) {
-                    Base64._invalidCharacterError(str, i + 1);
-                }
+                if (b1 === undefined) Base64._invalidCharacterError(str, i);
+                else if (b2 === undefined) Base64._invalidCharacterError(str, i + 1);
 
                 b1 <<= 2;
                 b2 >>= 4;
@@ -230,26 +213,27 @@ const Base64 = {
         return arr;
     },
 
+    _enc_mult: 4 / 3,
+    _dec_mult: 3 / 4,
+
+    _enc_mask: 0x3f,
+    _dec_mask: 0xff,
+
+    _a_mask: 0xff0000,
+    _b_mask: 0x00ff00,
+    _c_mask: 0x0000ff,
+
     _generateTables: () => {
-        Base64._enc_mult = 4 / 3;
-        Base64._dec_mult = 3 / 4;
+        const lookup = Array(Base64.alphabet.length),
+            reverseLookup = Array("z".charCodeAt(0) + 1);
 
-        Base64.lookup = [];
-        Base64.reverseLookup = [];
-
-        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-        for (let i = 0; i < alphabet.length; i++) {
-            Base64.lookup[i] = alphabet[i];
-            Base64.reverseLookup[alphabet.charCodeAt(i)] = i;
+        for (let i = 0; i < Base64.alphabet.length; i++) {
+            lookup[i] = Base64.alphabet[i];
+            reverseLookup[Base64.alphabet.charCodeAt(i)] = i;
         }
 
-        Base64._enc_mask = 0x3f;
-        Base64._dec_mask = 0xff;
-
-        Base64._a_mask = 0xff0000;
-        Base64._b_mask = 0x00ff00;
-        Base64._c_mask = 0x0000ff;
+        Base64.lookup = lookup;
+        Base64.reverseLookup = reverseLookup;
     },
 
     _getEncodeByteCount: bytes => {
@@ -260,9 +244,10 @@ const Base64 = {
     },
 
     _getDecodeCharCount: str => {
-        const paddingPos = str.indexOf("="),
-            len = paddingPos > 0 ? paddingPos : str.length,
-            extra = str.length - len,
+        const paddingPos = str.indexOf(Base64.paddingChar),
+            len = paddingPos > 0 ? paddingPos : str.length;
+
+        const extra = str.length - len,
             count = extra > 0 ? len - 4 : len;
 
         return [count, extra];
