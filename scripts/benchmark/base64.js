@@ -1,18 +1,19 @@
-import Base64 from "../src/base64/base64.cjs";
+import Base64 from "../../src/base64/base64.cjs";
 
-import Util from "../src/util/Util.js";
-import Encoding from "../src/util/Encoding.js";
+import Util from "../../src/util/Util.js";
+import Encoding from "../../src/util/Encoding.js";
 
 const dataLength = 2048 * 1000,
     runs = 200;
+
+console.log("Running base64 benchmark...");
+console.log("Data length:", dataLength, "runs:", runs, "\n");
 
 const data = Array(dataLength)
     .fill()
     .map((_, i) => i % 256);
 
 const encoded = Encoding.encodeBase64(data);
-
-console.log("Data length:", dataLength, "runs:", runs, "\n");
 
 Util.benchmark("Built-in encode", runs, Encoding.encodeBase64, data);
 Util.benchmark("Built-in decode", runs, Encoding.decodeBase64, encoded);
